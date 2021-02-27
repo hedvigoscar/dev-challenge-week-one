@@ -18,7 +18,9 @@ package com.example.androiddevchallenge
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -27,6 +29,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.res.painterResource
 import com.example.androiddevchallenge.ui.BackButton
 import com.example.androiddevchallenge.ui.Navigator
 import com.example.androiddevchallenge.ui.Screen
@@ -50,10 +53,14 @@ fun MyApp() {
     val backstack = rememberSaveable { Stack<Screen>() }
     val (screen, setScreen) = rememberSaveable { mutableStateOf<Screen>(Screen.List) }
 
-    BackButton(backstack.isNotEmpty()) {
+    fun goBack() {
         if (backstack.isNotEmpty()) {
             setScreen(backstack.pop())
         }
+    }
+
+    BackButton(backstack.isNotEmpty()) {
+        goBack()
     }
 
     Scaffold(
@@ -68,7 +75,18 @@ fun MyApp() {
                             }
                         )
                     }
-                })
+                },
+                navigationIcon = if (screen is Screen.Detail) {
+                    {
+                        IconButton(onClick = { goBack() }) {
+                            Image(
+                                painterResource(R.drawable.ic_back),
+                                contentDescription = "Go back"
+                            )
+                        }
+                    }
+                } else null
+            )
         },
     ) {
         Surface(color = MaterialTheme.colors.background) {
