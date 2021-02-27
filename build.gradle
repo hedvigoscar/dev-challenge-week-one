@@ -37,6 +37,7 @@ plugins {
 subprojects {
     repositories {
         google()
+        maven { url "https://jitpack.io" }
         jcenter()
     }
 
