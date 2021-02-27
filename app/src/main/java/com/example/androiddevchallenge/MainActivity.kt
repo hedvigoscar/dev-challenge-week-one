@@ -25,16 +25,13 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
-import androidx.navigation.compose.navigate
-import androidx.navigation.compose.rememberNavController
-import com.example.androiddevchallenge.model.puppies
-import com.example.androiddevchallenge.ui.screens.detail.Detail
-import com.example.androiddevchallenge.ui.screens.puppies.Puppies
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.example.androiddevchallenge.ui.BackButton
+import com.example.androiddevchallenge.ui.Navigator
+import com.example.androiddevchallenge.ui.Screen
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,33 +47,34 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp() {
-    val navController = rememberNavController()
+    val backstack = rememberSaveable { Stack<Screen>() }
+    val (screen, setScreen) = rememberSaveable { mutableStateOf<Screen>(Screen.List) }
+
+    BackButton(backstack.isNotEmpty()) {
+        if (backstack.isNotEmpty()) {
+            setScreen(backstack.pop())
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Row { Text("Adopt a puppy") } })
+                title = {
+                    Row {
+                        Text(
+                            when (screen) {
+                                is Screen.Detail -> screen.name
+                                Screen.List -> "Adopt a puppy"
+                            }
+                        )
+                    }
+                })
         },
     ) {
         Surface(color = MaterialTheme.colors.background) {
-            NavHost(navController = navController, startDestination = "puppies") {
-                composable("puppies") {
-                    Puppies { name ->
-                        navController.navigate("detail/${name}")
-                    }
-                }
-                composable(
-                    "detail/{name}", arguments = listOf(
-                        navArgument("name") {
-                            type =
-                                NavType.StringType
-                        }
-                    )
-                ) {
-                    it.arguments?.getString("name")
-                        ?.let { name -> puppies.first { p -> p.name == name } }
-                        ?.let { puppy -> Detail(puppy) }
-                }
+            Navigator(screen) { newScreen ->
+                backstack.push(screen)
+                setScreen(newScreen)
             }
         }
     }
