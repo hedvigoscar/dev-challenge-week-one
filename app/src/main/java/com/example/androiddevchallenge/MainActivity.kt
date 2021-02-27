@@ -34,7 +34,7 @@ import com.example.androiddevchallenge.ui.BackButton
 import com.example.androiddevchallenge.ui.Navigator
 import com.example.androiddevchallenge.ui.Screen
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import java.util.*
+import java.util.Stack
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
